@@ -9,6 +9,9 @@ import 'package:minigames/NearbyClasses.dart';
 
 //Classes
 import 'package:minigames/playerClasses.dart';
+import 'package:minigames/TicTacToe.dart';
+import 'package:piecemeal/piecemeal.dart'; // for tictactoe
+
 
 //Screens
 import 'package:minigames/OpeningScreen.dart';
@@ -106,4 +109,30 @@ class GameState with ChangeNotifier {
     StreamChannel<String> serverChannel = StreamChannel(NearbyStream(id).stream, NearbyStream(id).sink);
     client = JsonRpc2Client(null, serverChannel);
   }
+
+  // Tic Tac Toe
+Array2D<List> ticTacToeData;
+void initalizeticTacToeBoard(){
+  ticTacToeData = Array2D(3, 3, [[], []]);
+  ticTacToeData.set(0, 0, [Colors.blue, Symbol.cross]);
+  ticTacToeData.set(2,0, [Colors.red, Symbol.circle]);
+  ticTacToeData.set(1,1, [null, Symbol.blank]);
+}
+
+List getPiece (x, y){
+  return ticTacToeData.get(x, y);
+}
+
+void setToRedO(x, y){
+  print(ticTacToeData.get(x, y));
+  print("$x $y set to red o");
+  ticTacToeData.set(x, y, [Colors.red, Symbol.circle]);
+    print(ticTacToeData.get(x, y));
+  notifyListeners();
+
+/*print("I am $x $y");
+print("I have this as data:");
+print(ticTacToeData.get(x,y));*/
+}
+
 }

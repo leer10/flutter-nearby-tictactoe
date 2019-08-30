@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:minigames/main.dart';
 import 'package:nearby_connections/nearby_connections.dart';
+import 'package:piecemeal/piecemeal.dart';
+
+import 'package:minigames/TicTacToe.dart';
 
 class LobbyPage extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
+    Provider.of<GameState>(context).initalizeticTacToeBoard();
     return Scaffold(
       appBar: AppBar(title: Text("${Provider.of<GameState>(context).PlayerList.firstWhere((player) => player.isHost == true).fancyName}'s Lobby"),),
       //body: Placeholder(),
@@ -38,12 +41,13 @@ isSubbed = true;} else {print("already subbed!");}});
             }
           ),
           MessageForm(),
+          TicTacToeBoard(),
         ],
       )
     );
   }
-
 }
+
 
 class MessageForm extends StatefulWidget{
   @override
@@ -84,7 +88,7 @@ super.dispose();
               Provider.of<GameState>(context).client.publish("greeting", myController.text);
             }
           ),
-        )
+        ),
       ],
     );
   }
