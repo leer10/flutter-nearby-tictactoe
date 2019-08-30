@@ -2,10 +2,12 @@ syntax = "proto3";
 package minigames;
 
 message Cell {
+int32 x = 1;
+int32 y = 2;
 enum Symbol {
-cross = 0;
-circle = 1;
-blank = 2;
+blank = 0;
+cross = 1;
+circle = 2;
 }
 
 enum Color {
@@ -13,4 +15,8 @@ black = 0;
 blue = 1;
 red = 2;
 }
+Symbol symbol = 3;
+
+Color color = 4;
+
 }

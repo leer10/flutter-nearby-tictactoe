@@ -2,20 +2,20 @@ import 'package:piecemeal/piecemeal.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:minigames/main.dart';
+import 'package:minigames/proto/cell.pb.dart';
 
-class Cell extends StatelessWidget{
-  final int x;
-  final int y;
+class CellWidget extends StatelessWidget{
+  final Cell cell;
 
-  Cell(this.x, this.y);
+  CellWidget(this.cell);
 
   @override
   Widget build(BuildContext context) {
     Color color;
     IconData symbol;
     try {
-    List thisCell = Provider.of<GameState>(context).getPiece(x, y);
-    if (thisCell[0] is Color) {color = thisCell[0];}
+    Cell thisCell = cell;
+    if (thisCell. is Color) {color = thisCell[0];}
     if (thisCell[1] is Symbol) {
       switch (thisCell[1]){
         case Symbol.cross:
@@ -46,7 +46,7 @@ class Cell extends StatelessWidget{
 
 }
 
-enum Symbol {cross, circle, blank}
+//enum Symbol {cross, circle, blank}
 
 class TicTacToeBoard extends StatelessWidget{
   @override

@@ -10,14 +10,14 @@ import 'dart:core' as $core show int, dynamic, String, List, Map;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 class Cell_Symbol extends $pb.ProtobufEnum {
-  static const Cell_Symbol cross = Cell_Symbol._(0, 'cross');
-  static const Cell_Symbol circle = Cell_Symbol._(1, 'circle');
-  static const Cell_Symbol blank = Cell_Symbol._(2, 'blank');
+  static const Cell_Symbol blank = Cell_Symbol._(0, 'blank');
+  static const Cell_Symbol cross = Cell_Symbol._(1, 'cross');
+  static const Cell_Symbol circle = Cell_Symbol._(2, 'circle');
 
   static const $core.List<Cell_Symbol> values = <Cell_Symbol> [
+    blank,
     cross,
     circle,
-    blank,
   ];
 
   static final $core.Map<$core.int, Cell_Symbol> _byValue = $pb.ProtobufEnum.initByValue(values);
