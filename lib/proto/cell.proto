@@ -1,0 +1,16 @@
+syntax = "proto3";
+package minigames;
+
+message Cell {
+enum Symbol {
+cross = 0;
+circle = 1;
+blank = 2;
+}
+
+enum Color {
+black = 0;
+blue = 1;
+red = 2;
+}
+}
