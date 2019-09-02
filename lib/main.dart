@@ -130,13 +130,10 @@ void initalizeticTacToeBoard(){
     _ticTacToeData[2][i].y = i;
     _ticTacToeData[2][i].x = 2;
   }
-  //_ticTacToeData.set(0, 0, [Colors.blue, Symbol.cross]);
   _ticTacToeData[0][0].color = Cell_Color.blue;
   _ticTacToeData[0][0].symbol = Cell_Symbol.cross;
-  //_ticTacToeData.set(2,0, [Colors.red, Symbol.circle]);
   _ticTacToeData[2][0].color = Cell_Color.red;
   _ticTacToeData[2][0].symbol = Cell_Symbol.circle;
-  //_ticTacToeData.set(1,1, [null, Symbol.blank]);
   _ticTacToeData[1][1].symbol = Cell_Symbol.blank;
 
   var ticTacToeEventCatch = client.subscribe("ticTacToeEvent");
@@ -172,9 +169,6 @@ void setToRedO(x, y){
   //print(_ticTacToeData[x][y]);
   notifyListeners();
   client.publish("ticTacToeEvent", _ticTacToeData[x][y].writeToJson());
-/*print("I am $x $y");
-print("I have this as data:");
-print(_ticTacToeData.get(x,y));*/
 }
 
 void setToRandomColor(x, y){
