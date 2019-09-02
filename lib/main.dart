@@ -11,6 +11,8 @@ import 'package:minigames/NearbyClasses.dart';
 import 'package:minigames/playerClasses.dart';
 import 'package:minigames/TicTacToe.dart';
 import 'package:piecemeal/piecemeal.dart'; // for tictactoe
+import 'package:minigames/proto/cell.pb.dart'; // for tictactoe
+import 'dart:math' as dartMath; //for random numbers
 
 
 //Screens
@@ -111,28 +113,83 @@ class GameState with ChangeNotifier {
   }
 
   // Tic Tac Toe
-Array2D<List> ticTacToeData;
+bool isBoardInitalized = false;
+List<List<Cell>> _ticTacToeData;
 void initalizeticTacToeBoard(){
-  ticTacToeData = Array2D(3, 3, [[], []]);
-  ticTacToeData.set(0, 0, [Colors.blue, Symbol.cross]);
-  ticTacToeData.set(2,0, [Colors.red, Symbol.circle]);
-  ticTacToeData.set(1,1, [null, Symbol.blank]);
+  if (!isBoardInitalized){
+  _ticTacToeData = List<List<Cell>>.generate( 3, (i) => List<Cell>.generate(3, (j) => Cell())); // u/kevmoo
+  for (var i = 0; i < _ticTacToeData[0].length; i++){
+    _ticTacToeData[0][i].y = i;
+    _ticTacToeData[0][i].x = 0;
+  }
+  for (var i = 0; i < _ticTacToeData[1].length; i++){
+    _ticTacToeData[1][i].y = i;
+    _ticTacToeData[1][i].x = 1;
+  }
+  for (var i = 0; i < _ticTacToeData[2].length; i++){
+    _ticTacToeData[2][i].y = i;
+    _ticTacToeData[2][i].x = 2;
+  }
+  //_ticTacToeData.set(0, 0, [Colors.blue, Symbol.cross]);
+  _ticTacToeData[0][0].color = Cell_Color.blue;
+  _ticTacToeData[0][0].symbol = Cell_Symbol.cross;
+  //_ticTacToeData.set(2,0, [Colors.red, Symbol.circle]);
+  _ticTacToeData[2][0].color = Cell_Color.red;
+  _ticTacToeData[2][0].symbol = Cell_Symbol.circle;
+  //_ticTacToeData.set(1,1, [null, Symbol.blank]);
+  _ticTacToeData[1][1].symbol = Cell_Symbol.blank;
+
+  var ticTacToeEventCatch = client.subscribe("ticTacToeEvent");
+  ticTacToeEventCatch.then((sub) {
+    print("listening to ticTacToe events");
+  sub.listen((msg) {
+Cell newpiece = Cell.fromJson(msg);
+_ticTacToeData[newpiece.x][newpiece.y] = newpiece;
+notifyListeners();
+  });
+});
+
+  isBoardInitalized = true;
+}}
+
+List<List<Cell>> get ticTacToeData => _ticTacToeData;
+
+Cell getPiece (x, y){
+  return _ticTacToeData[x][y];
 }
 
-List getPiece (x, y){
-  return ticTacToeData.get(x, y);
+void setCellColor(int x, int y, Cell_Color color){
+_ticTacToeData[x][y].color = color;
+notifyListeners();
+client.publish("ticTacToeEvent", _ticTacToeData[x][y].writeToJson());
 }
 
 void setToRedO(x, y){
-  print(ticTacToeData.get(x, y));
+  print(_ticTacToeData[x][y]);
   print("$x $y set to red o");
-  ticTacToeData.set(x, y, [Colors.red, Symbol.circle]);
-    print(ticTacToeData.get(x, y));
+  _ticTacToeData[x][y].symbol = Cell_Symbol.circle;
+  _ticTacToeData[x][y].color = Cell_Color.red;
+  //print(_ticTacToeData[x][y]);
   notifyListeners();
-
+  client.publish("ticTacToeEvent", _ticTacToeData[x][y].writeToJson());
 /*print("I am $x $y");
 print("I have this as data:");
-print(ticTacToeData.get(x,y));*/
+print(_ticTacToeData.get(x,y));*/
 }
 
+void setToRandomColor(x, y){
+dartMath.Random random = dartMath.Random();
+  int randomInt = random.nextInt(3);
+  _ticTacToeData[x][y].color = Cell_Color.valueOf(randomInt);
+  notifyListeners();
+  client.publish("ticTacToeEvent", _ticTacToeData[x][y].writeToJson());
+}
+
+void setToRandomSymbol(x, y){
+dartMath.Random random = dartMath.Random();
+  int randomInt = random.nextInt(3);
+  _ticTacToeData[x][y].symbol = Cell_Symbol.valueOf(randomInt);
+  notifyListeners();
+  client.publish("ticTacToeEvent", _ticTacToeData[x][y].writeToJson());
+}
 }

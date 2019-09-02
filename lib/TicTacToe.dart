@@ -15,29 +15,46 @@ class CellWidget extends StatelessWidget{
     IconData symbol;
     try {
     Cell thisCell = cell;
-    if (thisCell. is Color) {color = thisCell[0];}
-    if (thisCell[1] is Symbol) {
-      switch (thisCell[1]){
-        case Symbol.cross:
+    if (thisCell.hasColor()) {
+      switch (thisCell.color){
+        case Cell_Color.black:
+          color = Colors.black;
+          break;
+        case Cell_Color.blue:
+          color = Colors.blue;
+          break;
+        case Cell_Color.red:
+          color = Colors.red;
+          break;
+      }
+    } else {color = Colors.purple;}
+    if (thisCell.hasSymbol()) {
+      switch (thisCell.symbol){
+        case Cell_Symbol.cross:
         symbol = Icons.close;
         break;
-        case Symbol.circle:
+        case Cell_Symbol.circle:
         symbol = Icons.radio_button_unchecked;
         break;
-        case Symbol.blank:
+        case Cell_Symbol.blank:
         symbol = Icons.help_outline;
         color = Colors.transparent;
       }
     } else {symbol = Icons.help;}}
     on RangeError {
-      print("$x, $y has no data");
+      print("range error");
       symbol = Icons.help;
       color = Colors.black;
     }
     return InkWell(
       onTap: (){
-        print("I am $x $y");
-        Provider.of<GameState>(context).setToRedO(x, y);
+        print("I am ${cell.x} ${cell.y}");
+        //Provider.of<GameState>(context).setCellColor(cell.x, cell.y, Cell_Color.blue);
+        //Provider.of<GameState>(context).setToRedO(cell.x, cell.y);
+        Provider.of<GameState>(context).setToRandomSymbol(cell.x, cell.y);
+      },
+      onLongPress:(){
+        Provider.of<GameState>(context).setToRandomColor(cell.x, cell.y);
       },
       child: SizedBox(height: 80, width: 80, child: Icon(symbol, color: color, size: 48)));
     // SizedBox(height: 80, width: 80, child: Icon(Icons.close, color: Colors.red, size: 48));
@@ -48,7 +65,12 @@ class CellWidget extends StatelessWidget{
 
 //enum Symbol {cross, circle, blank}
 
-class TicTacToeBoard extends StatelessWidget{
+class TicTacToeBoard extends StatefulWidget{
+  @override
+  _TicTacToeBoardState createState() => _TicTacToeBoardState();
+}
+
+class _TicTacToeBoardState extends State<TicTacToeBoard> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -56,33 +78,37 @@ class TicTacToeBoard extends StatelessWidget{
       width: 240,
       child: ConstrainedBox(
         constraints: const BoxConstraints.expand(),
-        child: Table(
-          border: TableBorder.symmetric(inside: BorderSide()),
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          children: [
-            TableRow(
+        child: Consumer<GameState>(
+          builder: (_, gameState, __) {
+            print(gameState.ticTacToeData[0][0]);
+            return Table(
+              border: TableBorder.symmetric(inside: BorderSide()),
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               children: [
-                Cell(0,0),
-                Cell(0,1),
-                Cell(0,2),
+                TableRow(
+                  children: [
+                    CellWidget(gameState.ticTacToeData[0][0]),
+                    CellWidget(gameState.ticTacToeData[0][1]),
+                    CellWidget(gameState.ticTacToeData[0][2]),
+                  ]
+                ),TableRow(
+                  children: [
+                    CellWidget(gameState.ticTacToeData[1][0]),
+                    CellWidget(gameState.ticTacToeData[1][1]),
+                    CellWidget(gameState.ticTacToeData[1][2]),
+                  ]
+                ),TableRow(
+                  children: [
+                    CellWidget(gameState.ticTacToeData[2][0]),
+                    CellWidget(gameState.ticTacToeData[2][1]),
+                    CellWidget(gameState.ticTacToeData[2][2]),
+                  ]
+                ),
               ]
-            ),TableRow(
-              children: [
-                Cell(1,0),
-                Cell(1,1),
-                Cell(1,2),
-              ]
-            ),TableRow(
-              children: [
-                Cell(2,0),
-                Cell(2,1),
-                Cell(2,2)
-              ]
-            ),
-          ]
+            );
+          }
         ),
       ),
     );
   }
-
 }
