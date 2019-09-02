@@ -117,7 +117,11 @@ bool isBoardInitalized = false;
 List<List<Cell>> _ticTacToeData;
 void initalizeticTacToeBoard(){
   if (!isBoardInitalized){
-  _ticTacToeData = List<List<Cell>>.generate( 3, (i) => List<Cell>.generate(3, (j) => Cell())); // u/kevmoo
+  _ticTacToeData = List<List<Cell>>.generate( 3, (i) => List<Cell>.generate(3, (j) {
+    Cell aCell = Cell();
+    aCell.symbol = Cell_Symbol.blank;
+    return aCell;
+  }) ); // u/kevmoo
   for (var i = 0; i < _ticTacToeData[0].length; i++){
     _ticTacToeData[0][i].y = i;
     _ticTacToeData[0][i].x = 0;
@@ -130,12 +134,12 @@ void initalizeticTacToeBoard(){
     _ticTacToeData[2][i].y = i;
     _ticTacToeData[2][i].x = 2;
   }
-  _ticTacToeData[0][0].color = Cell_Color.blue;
+  /*_ticTacToeData[0][0].color = Cell_Color.blue;
   _ticTacToeData[0][0].symbol = Cell_Symbol.cross;
   _ticTacToeData[2][0].color = Cell_Color.red;
   _ticTacToeData[2][0].symbol = Cell_Symbol.circle;
   _ticTacToeData[1][1].symbol = Cell_Symbol.blank;
-
+  */
   var ticTacToeEventCatch = client.subscribe("ticTacToeEvent");
   ticTacToeEventCatch.then((sub) {
     print("listening to ticTacToe events");
