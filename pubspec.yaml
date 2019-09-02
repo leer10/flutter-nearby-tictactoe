@@ -26,6 +26,7 @@ dependencies:
   piecemeal: ^0.4.2
   protobuf: ^0.13.15
   uuid: ^2.0.2
+  progress_dialog: ^1.1.0+1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
