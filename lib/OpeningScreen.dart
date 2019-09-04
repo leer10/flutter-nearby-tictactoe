@@ -38,10 +38,22 @@ class _NameInputFormState extends State<NameInputForm> {
           onSubmitted: (name) {
             Provider.of<GameState>(context).addSelf(name);
             print("$name added as self!");
+            Provider.of<GameState>(context).selfPlayer.desireToSpectate = Provider.of<GameState>(context).desireToSpectate;
             Navigator.pushNamedAndRemoveUntil(
                 context, '/welcome', (_) => false);
           },
         ),
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Text("Do you want to spectate?"),
+          Switch(
+            value: Provider.of<GameState>(context).desireToSpectate,
+            onChanged: (value){
+              Provider.of<GameState>(context).setDesireToSpectate(value);
+            })
+        ]
       )
     ]);
   }

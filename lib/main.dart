@@ -14,6 +14,11 @@ import 'package:piecemeal/piecemeal.dart'; // for tictactoe
 import 'package:minigames/proto/cell.pb.dart'; // for tictactoe
 import 'dart:math' as dartMath; //for random numbers
 
+//actual multiplayer
+import 'package:minigames/Manager.dart';
+import 'package:minigames/Customer.dart';
+import 'package:minigames/proto/serializablePlayer.pb.dart';
+
 
 //Screens
 import 'package:minigames/OpeningScreen.dart';
@@ -57,18 +62,29 @@ class MyApp extends StatelessWidget {
 class GameState with ChangeNotifier {
   List<Player> PlayerList = [];
   Player selfPlayer;
+  bool desireToSpectate = false;
   // For server
   bool isServerInitalized = false;
   Server server;
   StreamController<StreamChannel<String>> controller;
   Stream<StreamChannel<String>> incomingConnections;
   JsonRpc2Adapter adapter;
+  Manager manager;
+  Customer customer;
 
   // For client
   bool isClientInitalized = false;
   JsonRpc2Client client;
 
+  // For Multiplayer logic self-hosted (currently Nearby only) (the "server" in client-server)
+  bool isManagerInitalized = false;
+  JsonRpc2Client managertoServer;
 
+
+  void setDesireToSpectate (bool value){
+    desireToSpectate = value;
+    notifyListeners();
+  }
 
   void addSelf(String name) {
     selfPlayer = Player(fancyName: name, isSelf: true, deviceID: "This Device");
@@ -93,6 +109,7 @@ class GameState with ChangeNotifier {
     adapter = JsonRpc2Adapter(incomingConnections, isTrusted: true);
     server = Server([adapter])
     ..start();
+    managerInitWithSelf();
     connectWithSelf();
   isServerInitalized = true;} else {print("server already initalized!");}
   }
@@ -115,6 +132,33 @@ class GameState with ChangeNotifier {
   void connectWithServer(String id){
     StreamChannel<String> serverChannel = StreamChannel(NearbyStream(id).stream, NearbyStream(id).sink);
     client = JsonRpc2Client(null, serverChannel);
+    connectCommon(type: SerializablePlayer_ConnectionType.Nearby, id: id);
+  }
+
+  void connectCommon({SerializablePlayer_ConnectionType type, String id }){
+    SerializablePlayer serializableSelf = SerializablePlayer();
+    serializableSelf.fancyName = selfPlayer.fancyName;
+    serializableSelf.intentPlay = !selfPlayer.desireToSpectate;
+    if (selfPlayer.isHost == true){
+    serializableSelf.isHost = true;}
+    if (type == SerializablePlayer_ConnectionType.Nearby){
+      serializableSelf.nearbyID = id;
+    }
+    customer = Customer(client);
+    customer.announceSelf(serializableSelf);
+  }
+
+  void managerInitWithSelf(){
+    if (!isManagerInitalized){
+    LoopbackStream managerLoopbackStream = LoopbackStream();
+    StreamChannel<String> managerlocalClientChannel = StreamChannel(managerLoopbackStream.clientStream, managerLoopbackStream.clientSink);
+    StreamChannel<String> managerlocalServerChannel = StreamChannel(managerLoopbackStream.serverStream, managerLoopbackStream.serverSink);
+    managertoServer = JsonRpc2Client(null, managerlocalClientChannel);
+    controller.add(managerlocalServerChannel);
+    manager = Manager(managertoServer);
+    print("added manager");
+    isManagerInitalized = true;
+  } else {print("manager already init");}
   }
 
   // Tic Tac Toe

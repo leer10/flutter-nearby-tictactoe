@@ -1,0 +1,32 @@
+syntax = "proto3";
+package minigames;
+
+message SerializablePlayer {
+string fancyName = 1;
+int32 id = 2;
+int32 randomID = 7;
+
+bool isCreator = 3;
+bool isHost = 4;
+bool isSpectator = 5;
+
+bool intentPlay = 6;
+
+enum ConnectionType {
+  Unknown = 0;
+  Loopback = 1;
+  Nearby = 2;
+
+}
+
+ConnectionType connectionType = 8;
+
+oneof connectionID {
+string nearbyID = 9;
+}
+
+}
+
+message SerializablePlayerList {
+repeated SerializablePlayer players = 1;
+}
