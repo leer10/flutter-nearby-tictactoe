@@ -45,6 +45,29 @@ class _searchButton extends StatelessWidget {
               connectionRequestPrompt(id, info, context);
               },
               onConnectionResult: (String id,Status status) {
+                print("Connection result! Connection with $id was $status");
+                switch (status) {
+                  case Status.CONNECTED:
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content: Text("Connection with device $id ${Provider.of<GameState>(context).PlayerList.firstWhere((player) => player.deviceID == id).fancyName} made!")
+                  ));
+                  Provider.of<GameState>(context).connectWithClient(id);
+                  break;
+                  case Status.REJECTED:
+                  Navigator.popUntil(context, ModalRoute.withName('/welcome/offer'));
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content: Text("$id refused to connect with you!")
+                  ));
+                  Provider.of<GameState>(context).removePlayerbyID(deviceID:id);
+                  break;
+                  case Status.ERROR:
+                  Navigator.popUntil(context, ModalRoute.withName('/welcome/offer'));
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content: Text("Error with $id!")
+                  ));
+                  Provider.of<GameState>(context).removePlayerbyID(deviceID:id);
+                  break;
+                }
               // Called when connection is accepted/rejected
               },
               onDisconnected: (String id) {
@@ -161,7 +184,6 @@ void connectionRequestPrompt(String id, ConnectionInfo info, BuildContext contex
 
                       },
                     );
-                    Provider.of<GameState>(context).connectWithClient(id);
             }),
            ]
          )]),

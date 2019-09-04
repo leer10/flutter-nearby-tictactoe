@@ -4,6 +4,8 @@ import 'package:minigames/main.dart';
 import 'package:minigames/NearbyClasses.dart';
 import 'package:nearby_connections/nearby_connections.dart';
 
+import 'package:progress_dialog/progress_dialog.dart';
+
 class JoinPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -69,6 +71,7 @@ class _hostSearchStopButton extends StatelessWidget {
 
 class JoinsState with ChangeNotifier{
   bool isSearching = false;
+  ProgressDialog pr;
   List<Host> HostList = [];
 void searchingChange(bool state){
   isSearching = state;
@@ -104,6 +107,36 @@ class Host extends StatelessWidget {
           connectionRequestPrompt(id, info, context);
         },
         onConnectionResult: (id, status) {
+          print("Connection result! Connection with $id was $status");
+          switch (status) {
+            case Status.CONNECTED:
+            Provider.of<JoinsState>(context).pr.hide();
+            Provider.of<GameState>(context).connectWithServer(id);
+            Navigator.pushNamedAndRemoveUntil(
+                context, '/lobby', (_) => false);
+            Scaffold.of(context).showSnackBar(SnackBar(
+              content: Text("Connection with device $id made!")
+            ));
+            break;
+            case Status.REJECTED:
+            if (Provider.of<JoinsState>(context).pr != null){
+            Provider.of<JoinsState>(context).pr.hide();}
+            Navigator.popUntil(context, ModalRoute.withName('/welcome/join'));
+            /*try {
+              Navigator.of(context, rootNavigator: true).pop('dialog'); }
+            catch (e){
+            print("error with popping request dialog! $e");} */
+            Scaffold.of(context).showSnackBar(SnackBar(
+              content: Text("$id refused to connect with you!")
+            ));
+            break;
+            case Status.ERROR:
+            Provider.of<JoinsState>(context).pr.hide();
+            Scaffold.of(context).showSnackBar(SnackBar(
+              content: Text("Error with $id!")
+            ));
+            break;
+          }
         },
         onDisconnected: (id) {
         },
@@ -172,7 +205,6 @@ void connectionRequestPrompt(String id, ConnectionInfo info, BuildContext contex
            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
            children:[
              RaisedButton(color: Colors.red, child: Text("REJECT"), onPressed: () async {
-               Navigator.pop(context);
                try {
                       await Nearby().rejectConnection(id);
                     } catch (exception) {
@@ -181,8 +213,9 @@ void connectionRequestPrompt(String id, ConnectionInfo info, BuildContext contex
             RaisedButton(color: Colors.green, child: Text("ACCEPT"), onPressed: () {
               Provider.of<GameState>(context).addPlayer(deviceID: id, fancyName: info.endpointName, isHost: true);
                     Navigator.pop(context);
-                    Navigator.pushNamedAndRemoveUntil(
-                        context, '/lobby', (_) => false);
+                    Provider.of<JoinsState>(context).pr = ProgressDialog(context, ProgressDialogType.Normal)
+                    ..setMessage("Connecting to ${info.endpointName}")
+                    ..show();
                     Nearby().acceptConnection(
                       id,
                       onPayLoadRecieved: (endid, payload) {
@@ -190,7 +223,6 @@ void connectionRequestPrompt(String id, ConnectionInfo info, BuildContext contex
                         NearbyStream(endid).receive(payload.bytes);
                       },
                     );
-                    Provider.of<GameState>(context).connectWithServer(id);
             }),
            ]
          )]),

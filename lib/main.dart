@@ -80,6 +80,11 @@ class GameState with ChangeNotifier {
     notifyListeners();
   }
 
+  void removePlayerbyID({@required String deviceID}){
+    PlayerList.removeWhere((player) => player.deviceID == deviceID);
+    notifyListeners();
+  }
+
   void initalizeServer() {
     if (!isServerInitalized) {
     print("Initalizing server");
