@@ -4,11 +4,11 @@ import 'package:pub_sub/pub_sub.dart';
 import 'package:pub_sub/json_rpc_2.dart';
 import 'dart:async';
 import 'package:stream_channel/stream_channel.dart';
-import 'package:minigames/NearbyClasses.dart';
+import 'package:minigames/classes/NearbyClasses.dart';
 import 'package:uuid/uuid.dart';
 
 //Classes
-import 'package:minigames/playerClasses.dart';
+import 'package:minigames/classes/playerClasses.dart';
 import 'package:minigames/TicTacToe.dart';
 import 'package:piecemeal/piecemeal.dart'; // for tictactoe
 import 'package:minigames/proto/cell.pb.dart'; // for tictactoe
@@ -23,13 +23,12 @@ import 'package:minigames/proto/serializablePlayer.pb.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 
-
 //Screens
-import 'package:minigames/OpeningScreen.dart';
-import 'package:minigames/WelcomeScreen.dart';
-import 'package:minigames/OfferScreen.dart';
-import 'package:minigames/JoinScreen.dart';
-import 'package:minigames/LobbyScreen.dart';
+import 'package:minigames/screens/OpeningScreen.dart';
+import 'package:minigames/screens/WelcomeScreen.dart';
+import 'package:minigames/screens/OfferScreen.dart';
+import 'package:minigames/screens/JoinScreen.dart';
+import 'package:minigames/screens/LobbyScreen.dart';
 
 void main() => runApp(
     ChangeNotifierProvider(builder: (context) => GameState(), child: MyApp()));
@@ -99,8 +98,7 @@ class GameState with ChangeNotifier {
   bool isManagerInitalized = false;
   JsonRpc2Client managertoServer;
 
-
-  void setDesireToSpectate (bool value){
+  void setDesireToSpectate(bool value) {
     desireToSpectate = value;
     notifyListeners();
   }
@@ -108,156 +106,171 @@ class GameState with ChangeNotifier {
   void addSelf(String name) {
     selfPlayer = Player(fancyName: name, isSelf: true, deviceID: "This Device");
     PlayerList.add(selfPlayer);
-
   }
-  void addPlayer({@required fancyName, @required deviceID, isHost}){
-    PlayerList.add(Player(fancyName: fancyName, deviceID: deviceID, isHost: isHost));
+
+  void addPlayer({@required fancyName, @required deviceID, isHost}) {
+    PlayerList.add(
+        Player(fancyName: fancyName, deviceID: deviceID, isHost: isHost));
     notifyListeners();
   }
 
-  void removePlayerbyID({@required String deviceID}){
+  void removePlayerbyID({@required String deviceID}) {
     PlayerList.removeWhere((player) => player.deviceID == deviceID);
     notifyListeners();
   }
 
   void initalizeServer() {
     if (!isServerInitalized) {
-    print("Initalizing server");
-    controller = StreamController<StreamChannel<String>>();
-    incomingConnections = controller.stream;
-    adapter = JsonRpc2Adapter(incomingConnections, isTrusted: true);
-    server = Server([adapter])
-    ..start();
-    managerInitWithSelf();
-    connectWithSelf();
-  isServerInitalized = true;} else {print("server already initalized!");}
+      print("Initalizing server");
+      controller = StreamController<StreamChannel<String>>();
+      incomingConnections = controller.stream;
+      adapter = JsonRpc2Adapter(incomingConnections, isTrusted: true);
+      server = Server([adapter])..start();
+      managerInitWithSelf();
+      connectWithSelf();
+      isServerInitalized = true;
+    } else {
+      print("server already initalized!");
+    }
   }
 
-  void connectWithClient(String id){
-    StreamChannel<String> clientChannel = StreamChannel(NearbyStream(id).stream, NearbyStream(id).sink);
+  void connectWithClient(String id) {
+    StreamChannel<String> clientChannel =
+        StreamChannel(NearbyStream(id).stream, NearbyStream(id).sink);
     controller.add(clientChannel);
     print("added client $id");
   }
 
-  void connectWithSelf(){
+  void connectWithSelf() {
     LoopbackStream loopbackStream = LoopbackStream();
-    StreamChannel<String> localClientChannel = StreamChannel(loopbackStream.clientStream, loopbackStream.clientSink);
-    StreamChannel<String> localServerChannel = StreamChannel(loopbackStream.serverStream, loopbackStream.serverSink);
+    StreamChannel<String> localClientChannel =
+        StreamChannel(loopbackStream.clientStream, loopbackStream.clientSink);
+    StreamChannel<String> localServerChannel =
+        StreamChannel(loopbackStream.serverStream, loopbackStream.serverSink);
     client = JsonRpc2Client(null, localClientChannel);
     controller.add(localServerChannel);
     print("added self");
     connectCommon(type: SerializablePlayer_ConnectionType.Loopback);
   }
 
-  void connectWithServer(String id){
-    StreamChannel<String> serverChannel = StreamChannel(NearbyStream(id).stream, NearbyStream(id).sink);
+  void connectWithServer(String id) {
+    StreamChannel<String> serverChannel =
+        StreamChannel(NearbyStream(id).stream, NearbyStream(id).sink);
     client = JsonRpc2Client(null, serverChannel);
     connectCommon(type: SerializablePlayer_ConnectionType.Nearby, id: id);
   }
 
-  void connectCommon({SerializablePlayer_ConnectionType type, String id }){
+  void connectCommon({SerializablePlayer_ConnectionType type, String id}) {
     SerializablePlayer serializableSelf = SerializablePlayer();
     serializableSelf.fancyName = selfPlayer.fancyName;
     serializableSelf.intentPlay = !selfPlayer.desireToSpectate;
     serializableSelf.id = uuid;
-    if (selfPlayer.isHost == true){
-    serializableSelf.isHost = true;}
-    if (type == SerializablePlayer_ConnectionType.Nearby){
+    if (selfPlayer.isHost == true) {
+      serializableSelf.isHost = true;
+    }
+    if (type == SerializablePlayer_ConnectionType.Nearby) {
       serializableSelf.nearbyID = id;
     }
     customer = Customer(client);
     customer.announceSelf(serializableSelf);
   }
 
-  void managerInitWithSelf(){
-    if (!isManagerInitalized){
-    LoopbackStream managerLoopbackStream = LoopbackStream();
-    StreamChannel<String> managerlocalClientChannel = StreamChannel(managerLoopbackStream.clientStream, managerLoopbackStream.clientSink);
-    StreamChannel<String> managerlocalServerChannel = StreamChannel(managerLoopbackStream.serverStream, managerLoopbackStream.serverSink);
-    managertoServer = JsonRpc2Client(null, managerlocalClientChannel);
-    controller.add(managerlocalServerChannel);
-    manager = Manager(managertoServer);
-    print("added manager");
-    isManagerInitalized = true;
-  } else {print("manager already init");}
+  void managerInitWithSelf() {
+    if (!isManagerInitalized) {
+      LoopbackStream managerLoopbackStream = LoopbackStream();
+      StreamChannel<String> managerlocalClientChannel = StreamChannel(
+          managerLoopbackStream.clientStream, managerLoopbackStream.clientSink);
+      StreamChannel<String> managerlocalServerChannel = StreamChannel(
+          managerLoopbackStream.serverStream, managerLoopbackStream.serverSink);
+      managertoServer = JsonRpc2Client(null, managerlocalClientChannel);
+      controller.add(managerlocalServerChannel);
+      manager = Manager(managertoServer);
+      print("added manager");
+      isManagerInitalized = true;
+    } else {
+      print("manager already init");
+    }
   }
 
   // Tic Tac Toe
-bool isBoardInitalized = false;
-List<List<Cell>> _ticTacToeData;
-void initalizeticTacToeBoard(){
-  if (!isBoardInitalized){
-  _ticTacToeData = List<List<Cell>>.generate( 3, (i) => List<Cell>.generate(3, (j) {
-    Cell aCell = Cell();
-    aCell.symbol = Cell_Symbol.blank;
-    return aCell;
-  }) ); // u/kevmoo
-  for (var i = 0; i < _ticTacToeData[0].length; i++){
-    _ticTacToeData[0][i].y = i;
-    _ticTacToeData[0][i].x = 0;
-  }
-  for (var i = 0; i < _ticTacToeData[1].length; i++){
-    _ticTacToeData[1][i].y = i;
-    _ticTacToeData[1][i].x = 1;
-  }
-  for (var i = 0; i < _ticTacToeData[2].length; i++){
-    _ticTacToeData[2][i].y = i;
-    _ticTacToeData[2][i].x = 2;
-  }
-  /*_ticTacToeData[0][0].color = Cell_Color.blue;
+  bool isBoardInitalized = false;
+  List<List<Cell>> _ticTacToeData;
+  void initalizeticTacToeBoard() {
+    if (!isBoardInitalized) {
+      _ticTacToeData = List<List<Cell>>.generate(
+          3,
+          (i) => List<Cell>.generate(3, (j) {
+                Cell aCell = Cell();
+                aCell.symbol = Cell_Symbol.blank;
+                return aCell;
+              })); // u/kevmoo
+      for (var i = 0; i < _ticTacToeData[0].length; i++) {
+        _ticTacToeData[0][i].y = i;
+        _ticTacToeData[0][i].x = 0;
+      }
+      for (var i = 0; i < _ticTacToeData[1].length; i++) {
+        _ticTacToeData[1][i].y = i;
+        _ticTacToeData[1][i].x = 1;
+      }
+      for (var i = 0; i < _ticTacToeData[2].length; i++) {
+        _ticTacToeData[2][i].y = i;
+        _ticTacToeData[2][i].x = 2;
+      }
+      /*_ticTacToeData[0][0].color = Cell_Color.blue;
   _ticTacToeData[0][0].symbol = Cell_Symbol.cross;
   _ticTacToeData[2][0].color = Cell_Color.red;
   _ticTacToeData[2][0].symbol = Cell_Symbol.circle;
   _ticTacToeData[1][1].symbol = Cell_Symbol.blank;
   */
-  var ticTacToeEventCatch = client.subscribe("ticTacToeEvent");
-  ticTacToeEventCatch.then((sub) {
-    print("listening to ticTacToe events");
-  sub.listen((msg) {
-Cell newpiece = Cell.fromJson(msg);
-_ticTacToeData[newpiece.x][newpiece.y] = newpiece;
-notifyListeners();
-  });
-});
+      var ticTacToeEventCatch = client.subscribe("ticTacToeEvent");
+      ticTacToeEventCatch.then((sub) {
+        print("listening to ticTacToe events");
+        sub.listen((msg) {
+          Cell newpiece = Cell.fromJson(msg);
+          _ticTacToeData[newpiece.x][newpiece.y] = newpiece;
+          notifyListeners();
+        });
+      });
 
-  isBoardInitalized = true;
-}}
+      isBoardInitalized = true;
+    }
+  }
 
-List<List<Cell>> get ticTacToeData => _ticTacToeData;
+  List<List<Cell>> get ticTacToeData => _ticTacToeData;
 
-Cell getPiece (x, y){
-  return _ticTacToeData[x][y];
-}
+  Cell getPiece(x, y) {
+    return _ticTacToeData[x][y];
+  }
 
-void setCellColor(int x, int y, Cell_Color color){
-_ticTacToeData[x][y].color = color;
-notifyListeners();
-client.publish("ticTacToeEvent", _ticTacToeData[x][y].writeToJson());
-}
+  void setCellColor(int x, int y, Cell_Color color) {
+    _ticTacToeData[x][y].color = color;
+    notifyListeners();
+    client.publish("ticTacToeEvent", _ticTacToeData[x][y].writeToJson());
+  }
 
-void setToRedO(x, y){
-  print(_ticTacToeData[x][y]);
-  print("$x $y set to red o");
-  _ticTacToeData[x][y].symbol = Cell_Symbol.circle;
-  _ticTacToeData[x][y].color = Cell_Color.red;
-  //print(_ticTacToeData[x][y]);
-  notifyListeners();
-  client.publish("ticTacToeEvent", _ticTacToeData[x][y].writeToJson());
-}
+  void setToRedO(x, y) {
+    print(_ticTacToeData[x][y]);
+    print("$x $y set to red o");
+    _ticTacToeData[x][y].symbol = Cell_Symbol.circle;
+    _ticTacToeData[x][y].color = Cell_Color.red;
+    //print(_ticTacToeData[x][y]);
+    notifyListeners();
+    client.publish("ticTacToeEvent", _ticTacToeData[x][y].writeToJson());
+  }
 
-void setToRandomColor(x, y){
-dartMath.Random random = dartMath.Random();
-  int randomInt = random.nextInt(3);
-  _ticTacToeData[x][y].color = Cell_Color.valueOf(randomInt);
-  notifyListeners();
-  client.publish("ticTacToeEvent", _ticTacToeData[x][y].writeToJson());
-}
+  void setToRandomColor(x, y) {
+    dartMath.Random random = dartMath.Random();
+    int randomInt = random.nextInt(3);
+    _ticTacToeData[x][y].color = Cell_Color.valueOf(randomInt);
+    notifyListeners();
+    client.publish("ticTacToeEvent", _ticTacToeData[x][y].writeToJson());
+  }
 
-void setToRandomSymbol(x, y){
-dartMath.Random random = dartMath.Random();
-  int randomInt = random.nextInt(3);
-  _ticTacToeData[x][y].symbol = Cell_Symbol.valueOf(randomInt);
-  notifyListeners();
-  client.publish("ticTacToeEvent", _ticTacToeData[x][y].writeToJson());
-}
+  void setToRandomSymbol(x, y) {
+    dartMath.Random random = dartMath.Random();
+    int randomInt = random.nextInt(3);
+    _ticTacToeData[x][y].symbol = Cell_Symbol.valueOf(randomInt);
+    notifyListeners();
+    client.publish("ticTacToeEvent", _ticTacToeData[x][y].writeToJson());
+  }
 }
