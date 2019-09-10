@@ -67,11 +67,11 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: '/',
         routes: {
-          '/': (context) => StartingPage(),
-          '/welcome': (context) => WelcomePage(),
-          '/welcome/offer': (context) => OfferPage(),
-          '/welcome/join': (context) => JoinPage(),
-          '/lobby': (context) => LobbyPage(),
+          '/': (context) => StartingScreen(),
+          '/welcome': (context) => WelcomeScreen(),
+          '/welcome/offer': (context) => OfferScreen(),
+          '/welcome/join': (context) => JoinScreen(),
+          '/lobby': (context) => LobbyScreen(),
         });
   }
 }

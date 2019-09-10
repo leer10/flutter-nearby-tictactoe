@@ -7,7 +7,7 @@ import 'package:minigames/proto/serializablePlayer.pb.dart';
 
 import 'package:progress_dialog/progress_dialog.dart';
 
-class JoinPage extends StatelessWidget {
+class JoinScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(

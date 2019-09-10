@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:minigames/main.dart';
 import 'package:nearby_connections/nearby_connections.dart';
 
-class WelcomePage extends StatelessWidget {
+class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build

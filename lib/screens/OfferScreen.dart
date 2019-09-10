@@ -7,7 +7,7 @@ import 'package:minigames/proto/serializablePlayer.pb.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-class OfferPage extends StatelessWidget {
+class OfferScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(

@@ -7,7 +7,7 @@ import 'package:minigames/proto/serializablePlayer.pb.dart';
 
 import 'package:minigames/TicTacToe.dart';
 
-class LobbyPage extends StatelessWidget {
+class LobbyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Provider.of<GameState>(context).initalizeticTacToeBoard();
