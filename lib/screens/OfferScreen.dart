@@ -16,8 +16,8 @@ class OfferScreen extends StatelessWidget {
           appBar: AppBar(
             title: Text("Player Search"),
             actions: <Widget>[
-              _searchButton(),
-              _stopButton(),
+              _SearchButton(),
+              _StopButton(),
               IconButton(
                   icon: Icon(Icons.arrow_forward),
                   onPressed: () {
@@ -37,10 +37,9 @@ class OfferScreen extends StatelessWidget {
   }
 }
 
-class _searchButton extends StatelessWidget {
+class _SearchButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return IconButton(
         icon: Icon(Icons.search),
         onPressed: () async {
@@ -59,7 +58,7 @@ class _searchButton extends StatelessWidget {
                   case Status.CONNECTED:
                     Scaffold.of(context).showSnackBar(SnackBar(
                         content: Text(
-                            "Connection with device $id ${Provider.of<GameState>(context).PlayerList.firstWhere((player) => player.deviceID == id).fancyName} made!")));
+                            "Connection with device $id ${Provider.of<GameState>(context).playerList.firstWhere((player) => player.deviceID == id).fancyName} made!")));
                     Provider.of<GameState>(context).connectWithClient(id);
                     break;
                   case Status.REJECTED:
@@ -87,6 +86,7 @@ class _searchButton extends StatelessWidget {
             );
             //print("start advertising");
             Provider.of<OffersState>(context).searchingChange(true);
+            print(a.toString());
           } catch (exception) {
             // platform exceptions like unable to start bluetooth or
             // insufficient permissions
@@ -96,10 +96,9 @@ class _searchButton extends StatelessWidget {
   }
 }
 
-class _stopButton extends StatelessWidget {
+class _StopButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return IconButton(
         icon: Icon(Icons.cancel),
         onPressed: () async {

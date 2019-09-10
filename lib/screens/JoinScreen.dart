@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:minigames/main.dart';
 import 'package:minigames/classes/NearbyClasses.dart';
 import 'package:nearby_connections/nearby_connections.dart';
-import 'package:minigames/proto/serializablePlayer.pb.dart';
 
 import 'package:progress_dialog/progress_dialog.dart';
 
@@ -16,8 +15,8 @@ class JoinScreen extends StatelessWidget {
           appBar: AppBar(
             title: Text("Host Search"),
             actions: <Widget>[
-              _hostSearchButton(),
-              _hostSearchStopButton(),
+              _HostSearchButton(),
+              _HostSearchStopButton(),
             ],
           ),
           body: JoinPageBody()),
@@ -25,10 +24,9 @@ class JoinScreen extends StatelessWidget {
   }
 }
 
-class _hostSearchButton extends StatelessWidget {
+class _HostSearchButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return IconButton(
         icon: Icon(Icons.search),
         onPressed: () async {
@@ -45,6 +43,7 @@ class _hostSearchButton extends StatelessWidget {
                 //called when an advertiser is lost (only if we weren't connected to it )
               },
             );
+            print(a.toString());
           } catch (e) {
             print(e);
             Provider.of<JoinsState>(context).searchingChange(false);
@@ -54,10 +53,9 @@ class _hostSearchButton extends StatelessWidget {
   }
 }
 
-class _hostSearchStopButton extends StatelessWidget {
+class _HostSearchStopButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return IconButton(
         icon: Icon(Icons.cancel),
         onPressed: () async {
@@ -70,15 +68,15 @@ class _hostSearchStopButton extends StatelessWidget {
 class JoinsState with ChangeNotifier {
   bool isSearching = false;
   ProgressDialog pr;
-  List<Host> HostList = [];
+  List<Host> hostList = [];
   void searchingChange(bool state) {
     isSearching = state;
     notifyListeners();
   }
 
   void addHost(String id, String userName, String serviceId) {
-    if (HostList.every((element) => element.id != id)) {
-      HostList.add(Host(id, userName, serviceId));
+    if (hostList.every((element) => element.id != id)) {
+      hostList.add(Host(id, userName, serviceId));
       notifyListeners();
     } else {
       print("$userName $id already discovered");
@@ -179,9 +177,9 @@ class _JoinPageBodyState extends State<JoinPageBody> {
         ],
         Expanded(
           child: ListView.builder(
-              itemCount: Provider.of<JoinsState>(context).HostList.length,
+              itemCount: Provider.of<JoinsState>(context).hostList.length,
               itemBuilder: (BuildContext context, int index) {
-                return Provider.of<JoinsState>(context).HostList[index];
+                return Provider.of<JoinsState>(context).hostList[index];
               }),
         )
       ]),

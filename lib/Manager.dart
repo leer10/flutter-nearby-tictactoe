@@ -37,7 +37,7 @@ class Manager {
         List<PlayerWithRole_Symbol> symbolList =
             List.from(PlayerWithRole_Symbol.values);
         colorList.shuffle();
-        symbolList.shuffle;
+        symbolList.shuffle();
         RoleList roleList = RoleList();
         List<SerializablePlayer> listofPlayers = playersBox
             .toMap()

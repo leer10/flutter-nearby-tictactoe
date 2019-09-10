@@ -6,7 +6,6 @@ import 'package:nearby_connections/nearby_connections.dart';
 class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
         appBar: AppBar(
           title: Text("Select a Connection"),

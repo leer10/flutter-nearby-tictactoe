@@ -9,8 +9,6 @@ import 'package:uuid/uuid.dart';
 
 //Classes
 import 'package:minigames/classes/playerClasses.dart';
-import 'package:minigames/TicTacToe.dart';
-import 'package:piecemeal/piecemeal.dart'; // for tictactoe
 import 'package:minigames/proto/cell.pb.dart'; // for tictactoe
 import 'dart:math' as dartMath; //for random numbers
 
@@ -78,7 +76,7 @@ class MyApp extends StatelessWidget {
 
 class GameState with ChangeNotifier {
   String uuid = Uuid().v4();
-  List<Player> PlayerList = [];
+  List<Player> playerList = [];
   Player selfPlayer;
   bool desireToSpectate = false;
   // For server
@@ -105,17 +103,17 @@ class GameState with ChangeNotifier {
 
   void addSelf(String name) {
     selfPlayer = Player(fancyName: name, isSelf: true, deviceID: "This Device");
-    PlayerList.add(selfPlayer);
+    playerList.add(selfPlayer);
   }
 
   void addPlayer({@required fancyName, @required deviceID, isHost}) {
-    PlayerList.add(
-        Player(fancyName: fancyName, deviceID: deviceID, isHost: isHost));
+    playerList
+        .add(Player(fancyName: fancyName, deviceID: deviceID, isHost: isHost));
     notifyListeners();
   }
 
   void removePlayerbyID({@required String deviceID}) {
-    PlayerList.removeWhere((player) => player.deviceID == deviceID);
+    playerList.removeWhere((player) => player.deviceID == deviceID);
     notifyListeners();
   }
 

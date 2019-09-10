@@ -5,8 +5,8 @@ class Player {
   bool isHost;
   bool desireToSpectate;
   Player(
-      {String this.fancyName,
-      String this.deviceID,
-      bool this.isSelf = false,
-      bool this.isHost = false});
+      {this.fancyName,
+      this.deviceID,
+      this.isSelf = false,
+      this.isHost = false});
 }

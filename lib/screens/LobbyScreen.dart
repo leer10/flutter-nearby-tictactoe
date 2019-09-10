@@ -5,8 +5,6 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:minigames/proto/serializablePlayer.pb.dart';
 
-import 'package:minigames/TicTacToe.dart';
-
 class LobbyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -14,7 +12,7 @@ class LobbyScreen extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           title: Text(
-              "${Provider.of<GameState>(context).PlayerList.firstWhere((player) => player.isHost == true).fancyName}'s Lobby"),
+              "${Provider.of<GameState>(context).playerList.firstWhere((player) => player.isHost == true).fancyName}'s Lobby"),
         ),
         //body: Placeholder(),
         body: Column(
@@ -64,7 +62,6 @@ class _MessageFormState extends State<MessageForm> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Row(
       children: <Widget>[
         Expanded(
