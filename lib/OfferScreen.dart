@@ -3,6 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:minigames/main.dart';
 import 'package:minigames/NearbyClasses.dart';
 import 'package:nearby_connections/nearby_connections.dart';
+import 'package:minigames/proto/serializablePlayer.pb.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
 
 class OfferPage extends StatelessWidget {
   @override
@@ -19,6 +23,12 @@ class OfferPage extends StatelessWidget {
                 icon: Icon(Icons.arrow_forward),
                 onPressed: (){
                   Navigator.pushNamed(context, '/lobby');
+                }
+              ),
+              IconButton(
+                icon: Icon(Icons.refresh),
+                onPressed: (){
+                  Provider.of<GameState>(context).client.publish("requestPlayerList", "");
                 }
               )
             ],
@@ -137,12 +147,18 @@ class _OfferPageBodyState extends State<OfferPageBody> {
         ),
       Divider()],
       Expanded(
-        child: ListView.builder(
-          itemCount: Provider.of<GameState>(context).PlayerList.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: Text(Provider.of<GameState>(context).PlayerList[index].fancyName),
-              subtitle: Text(Provider.of<GameState>(context).PlayerList[index].deviceID),
+        child: WatchBoxBuilder(
+          box: Hive.box('players'),
+          builder: (context, box) {
+            return ListView.builder(
+              itemCount: box.length,
+              itemBuilder: (BuildContext context, int index) {
+                SerializablePlayer playerInstance = SerializablePlayer.fromBuffer(box.getAt(index));
+                return ListTile(
+                  title: Text(playerInstance.fancyName),
+                  subtitle: Text(playerInstance.id),
+                );
+              }
             );
           }
         ),

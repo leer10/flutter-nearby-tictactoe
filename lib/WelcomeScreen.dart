@@ -11,7 +11,14 @@ class WelcomePage extends StatelessWidget {
         appBar: AppBar(
           title: Text("Select a Connection"),
         ),
-        body: WelcomePageBody());
+        body: FutureBuilder(
+          future: setupBox(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done){
+            return WelcomePageBody();}
+            else {return Center(child: CircularProgressIndicator());}
+          }
+        ));
   }
 }
 

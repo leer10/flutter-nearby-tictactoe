@@ -1,0 +1,23 @@
+syntax = "proto3";
+package minigames;
+
+message RoleList{
+repeated PlayerWithRole player = 1;
+}
+
+message PlayerWithRole{
+string uuid = 1;
+string fancyName = 2;
+enum Symbol {
+cross = 0;
+circle = 1;
+}
+enum Color {
+red = 0;
+blue = 1;
+black = 2;
+}
+Symbol symbol = 3;
+Color color = 4;
+
+}

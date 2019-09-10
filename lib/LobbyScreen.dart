@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:minigames/main.dart';
-import 'package:nearby_connections/nearby_connections.dart';
-import 'package:piecemeal/piecemeal.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:minigames/proto/serializablePlayer.pb.dart';
+
 
 import 'package:minigames/TicTacToe.dart';
 
@@ -15,33 +17,30 @@ class LobbyPage extends StatelessWidget{
       //body: Placeholder(),
       body: Column(
         children: <Widget>[
-          Builder(
-            builder: (context) {
-              bool isSubbed = false;
-              return RaisedButton(child: Text("subscribe"),
-              onPressed: (){
-                if (!isSubbed) {
-                print(Provider.of<GameState>(context).client.clientId);
-              var greetingcatch = Provider.of<GameState>(context).client.subscribe("greeting");
-              greetingcatch.then((sub) {
-                print("listening to sub");
-    sub.listen((msg) {
-              print('got a greeting');
-              final snackBar = SnackBar(content: Text("Got a greeting! It says: $msg"),);
-              Scaffold.of(context).showSnackBar(snackBar);
-    });
-  });
-isSubbed = true;} else {print("already subbed!");}});
-            }
-          ),
+          if (Provider.of<GameState>(context).selfPlayer.isHost == true)
           RaisedButton(
-            child: Text("emit a Hello World"),
+            child: Text("Start Game"),
             onPressed: (){
-              Provider.of<GameState>(context).client.publish("greeting", "Hello World");
+              Provider.of<GameState>(context).client.publish("startGame", "");
             }
           ),
-          MessageForm(),
-          TicTacToeBoard(),
+          Expanded(
+            child: WatchBoxBuilder(
+              box: Hive.box('players'),
+              builder: (context, box) {
+                return ListView.builder(
+                  itemCount: box.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    SerializablePlayer playerInstance = SerializablePlayer.fromBuffer(box.getAt(index));
+                    return ListTile(
+                      title: Text(playerInstance.fancyName),
+                      subtitle: Text(playerInstance.id),
+                    );
+                  }
+                );
+              }
+            ),
+          )
         ],
       )
     );

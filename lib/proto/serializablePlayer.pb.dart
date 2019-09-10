@@ -26,7 +26,7 @@ class SerializablePlayer extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('SerializablePlayer', package: const $pb.PackageName('minigames'))
     ..oo(0, [9])
     ..aOS(1, 'fancyName')
-    ..a<$core.int>(2, 'id', $pb.PbFieldType.O3)
+    ..aOS(2, 'id')
     ..aOB(3, 'isCreator')
     ..aOB(4, 'isHost')
     ..aOB(5, 'isSpectator')
@@ -59,8 +59,8 @@ class SerializablePlayer extends $pb.GeneratedMessage {
   $core.bool hasFancyName() => $_has(0);
   void clearFancyName() => clearField(1);
 
-  $core.int get id => $_get(1, 0);
-  set id($core.int v) { $_setSignedInt32(1, v); }
+  $core.String get id => $_getS(1, '');
+  set id($core.String v) { $_setString(1, v); }
   $core.bool hasId() => $_has(1);
   void clearId() => clearField(2);
 

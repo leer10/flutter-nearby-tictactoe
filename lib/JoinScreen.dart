@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:minigames/main.dart';
 import 'package:minigames/NearbyClasses.dart';
 import 'package:nearby_connections/nearby_connections.dart';
+import 'package:minigames/proto/serializablePlayer.pb.dart';
+
 
 import 'package:progress_dialog/progress_dialog.dart';
 

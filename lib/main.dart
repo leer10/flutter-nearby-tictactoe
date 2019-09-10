@@ -5,7 +5,7 @@ import 'package:pub_sub/json_rpc_2.dart';
 import 'dart:async';
 import 'package:stream_channel/stream_channel.dart';
 import 'package:minigames/NearbyClasses.dart';
-
+import 'package:uuid/uuid.dart';
 
 //Classes
 import 'package:minigames/playerClasses.dart';
@@ -19,6 +19,10 @@ import 'package:minigames/Manager.dart';
 import 'package:minigames/Customer.dart';
 import 'package:minigames/proto/serializablePlayer.pb.dart';
 
+//using hive as a backend
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
+
 
 //Screens
 import 'package:minigames/OpeningScreen.dart';
@@ -29,6 +33,20 @@ import 'package:minigames/LobbyScreen.dart';
 
 void main() => runApp(
     ChangeNotifierProvider(builder: (context) => GameState(), child: MyApp()));
+
+Future setupBox() async {
+  var directory = await getTemporaryDirectory();
+  Hive.init(directory.path);
+  await Hive.openBox('thebox');
+  await Hive.openBox('players');
+  await Hive.openBox('game');
+  await Hive.openBox('manager_players');
+  await Hive.deleteFromDisk();
+  await Hive.openBox('players');
+  await Hive.openBox('manager_players');
+  await Hive.openBox('game');
+  return await Hive.openBox('thebox');
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -60,6 +78,7 @@ class MyApp extends StatelessWidget {
 }
 
 class GameState with ChangeNotifier {
+  String uuid = Uuid().v4();
   List<Player> PlayerList = [];
   Player selfPlayer;
   bool desireToSpectate = false;
@@ -127,6 +146,7 @@ class GameState with ChangeNotifier {
     client = JsonRpc2Client(null, localClientChannel);
     controller.add(localServerChannel);
     print("added self");
+    connectCommon(type: SerializablePlayer_ConnectionType.Loopback);
   }
 
   void connectWithServer(String id){
@@ -139,6 +159,7 @@ class GameState with ChangeNotifier {
     SerializablePlayer serializableSelf = SerializablePlayer();
     serializableSelf.fancyName = selfPlayer.fancyName;
     serializableSelf.intentPlay = !selfPlayer.desireToSpectate;
+    serializableSelf.id = uuid;
     if (selfPlayer.isHost == true){
     serializableSelf.isHost = true;}
     if (type == SerializablePlayer_ConnectionType.Nearby){
