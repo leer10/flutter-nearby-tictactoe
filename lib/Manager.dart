@@ -30,8 +30,8 @@ class Manager {
 
     var startGameCatch = client.subscribe("startGame");
     startGameCatch.then((sub) {
-      print("manager: starting game");
       sub.listen((msg) {
+        print("manager: starting game");
         List<PlayerWithRole_Color> colorList =
             List.from(PlayerWithRole_Color.values);
         List<PlayerWithRole_Symbol> symbolList =

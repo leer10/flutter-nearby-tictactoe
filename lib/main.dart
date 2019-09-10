@@ -34,11 +34,14 @@ void main() => runApp(
 Future setupBox() async {
   var directory = await getTemporaryDirectory();
   Hive.init(directory.path);
-  await Hive.openBox('thebox');
-  await Hive.openBox('players');
-  await Hive.openBox('game');
-  await Hive.openBox('manager_players');
-  await Hive.deleteFromDisk();
+  Box theboxBox = await Hive.openBox('thebox');
+  Box playersBox = await Hive.openBox('players');
+  Box gameBox = await Hive.openBox('game');
+  Box managerPlayersBox = await Hive.openBox('manager_players');
+  await theboxBox.clear();
+  await playersBox.clear();
+  await gameBox.clear();
+  await managerPlayersBox.clear();
   await Hive.openBox('players');
   await Hive.openBox('manager_players');
   await Hive.openBox('game');
