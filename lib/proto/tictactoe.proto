@@ -21,3 +21,8 @@ Symbol symbol = 3;
 Color color = 4;
 
 }
+
+message TurnAnnounce{
+    string uuid = 1;
+    bool isAck = 2;
+}

@@ -1,6 +1,6 @@
 ///
 //  Generated code. Do not modify.
-//  source: tictactoe
+//  source: tictactoe.proto
 //
 // @dart = 2.3
 // ignore_for_file: camel_case_types,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type
@@ -78,5 +78,37 @@ class PlayerWithRole extends $pb.GeneratedMessage {
   set color(PlayerWithRole_Color v) { setField(4, v); }
   $core.bool hasColor() => $_has(3);
   void clearColor() => clearField(4);
+}
+
+class TurnAnnounce extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo('TurnAnnounce', package: const $pb.PackageName('minigames'))
+    ..aOS(1, 'uuid')
+    ..aOB(2, 'isAck')
+    ..hasRequiredFields = false
+  ;
+
+  TurnAnnounce._() : super();
+  factory TurnAnnounce() => create();
+  factory TurnAnnounce.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory TurnAnnounce.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  TurnAnnounce clone() => TurnAnnounce()..mergeFromMessage(this);
+  TurnAnnounce copyWith(void Function(TurnAnnounce) updates) => super.copyWith((message) => updates(message as TurnAnnounce));
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static TurnAnnounce create() => TurnAnnounce._();
+  TurnAnnounce createEmptyInstance() => create();
+  static $pb.PbList<TurnAnnounce> createRepeated() => $pb.PbList<TurnAnnounce>();
+  static TurnAnnounce getDefault() => _defaultInstance ??= create()..freeze();
+  static TurnAnnounce _defaultInstance;
+
+  $core.String get uuid => $_getS(0, '');
+  set uuid($core.String v) { $_setString(0, v); }
+  $core.bool hasUuid() => $_has(0);
+  void clearUuid() => clearField(1);
+
+  $core.bool get isAck => $_get(1, false);
+  set isAck($core.bool v) { $_setBool(1, v); }
+  $core.bool hasIsAck() => $_has(1);
+  void clearIsAck() => clearField(2);
 }
 

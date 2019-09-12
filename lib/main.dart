@@ -27,6 +27,7 @@ import 'package:minigames/screens/WelcomeScreen.dart';
 import 'package:minigames/screens/OfferScreen.dart';
 import 'package:minigames/screens/JoinScreen.dart';
 import 'package:minigames/screens/LobbyScreen.dart';
+import 'package:minigames/screens/GameScreen.dart';
 
 void main() => runApp(
     ChangeNotifierProvider(builder: (context) => GameState(), child: MyApp()));
@@ -37,14 +38,17 @@ Future setupBox() async {
   Box theboxBox = await Hive.openBox('thebox');
   Box playersBox = await Hive.openBox('players');
   Box gameBox = await Hive.openBox('game');
+  Box clientBox = await Hive.openBox("client");
   Box managerPlayersBox = await Hive.openBox('manager_players');
   await theboxBox.clear();
   await playersBox.clear();
   await gameBox.clear();
   await managerPlayersBox.clear();
+  await clientBox.clear();
   await Hive.openBox('players');
   await Hive.openBox('manager_players');
   await Hive.openBox('game');
+  await Hive.openBox("client");
   return await Hive.openBox('thebox');
 }
 
@@ -73,6 +77,7 @@ class MyApp extends StatelessWidget {
           '/welcome/offer': (context) => OfferScreen(),
           '/welcome/join': (context) => JoinScreen(),
           '/lobby': (context) => LobbyScreen(),
+          '/game': (context) => GameScreen(),
         });
   }
 }
@@ -172,7 +177,7 @@ class GameState with ChangeNotifier {
     if (type == SerializablePlayer_ConnectionType.Nearby) {
       serializableSelf.nearbyID = id;
     }
-    customer = Customer(client);
+    customer = Customer(client, notifyListeners);
     customer.announceSelf(serializableSelf);
   }
 
@@ -247,6 +252,14 @@ class GameState with ChangeNotifier {
     _ticTacToeData[x][y].color = color;
     notifyListeners();
     client.publish("ticTacToeEvent", _ticTacToeData[x][y].writeToJson());
+  }
+
+  void setCell(int x, int y, Cell_Color color, Cell_Symbol symbol) {
+    _ticTacToeData[x][y].color = color;
+    _ticTacToeData[x][y].symbol = symbol;
+    notifyListeners();
+    client.publish("ticTacToeEvent", _ticTacToeData[x][y].writeToJson());
+    client.publish("finishedTurn", "");
   }
 
   void setToRedO(x, y) {

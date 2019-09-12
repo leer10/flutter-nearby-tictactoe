@@ -9,6 +9,8 @@ class Manager {
   JsonRpc2Client client;
   Box playersBox = Hive.box('manager_players');
   Box gameBox = Hive.box('game');
+  int currentTurnIndex = 0;
+  RoleList roleList = RoleList();
   Manager(this.client) {
     var announceSelfCatch = client.subscribe("announceSelf");
     announceSelfCatch.then((sub) {
@@ -28,6 +30,14 @@ class Manager {
       });
     });
 
+    var finishedTurnCatch = client.subscribe("finishedTurn");
+    finishedTurnCatch.then((sub) {
+      print("manager: listening to finished turn");
+      sub.listen((msg) {
+        nextTurn();
+      });
+    });
+
     var startGameCatch = client.subscribe("startGame");
     startGameCatch.then((sub) {
       sub.listen((msg) {
@@ -38,13 +48,13 @@ class Manager {
             List.from(PlayerWithRole_Symbol.values);
         colorList.shuffle();
         symbolList.shuffle();
-        RoleList roleList = RoleList();
         List<SerializablePlayer> listofPlayers = playersBox
             .toMap()
             .cast<String, Uint8List>()
             .values
             .map((f) => SerializablePlayer.fromBuffer(f))
-            .where((player) => player.intentPlay == true);
+            .where((player) => player.intentPlay == true)
+            .toList();
         listofPlayers.shuffle();
         for (SerializablePlayer player in listofPlayers.take(2)) {
           PlayerWithRole aPlayer1 = PlayerWithRole();
@@ -55,8 +65,26 @@ class Manager {
           roleList.player.add(aPlayer1);
         }
         gameBox.put("rolesList", roleList.writeToBuffer());
-        client.publish("rolesListAnnounce", roleList.writeToJson());
+        client.publish("roleListAnnounce", roleList.writeToJson());
+        nextTurn();
       });
     });
+  }
+
+  void nextTurn() {
+    TurnAnnounce turnAnnounce = TurnAnnounce();
+    print("these are the roles: $roleList");
+    turnAnnounce.uuid = roleList.player[currentTurnIndex].uuid;
+    client.publish("turnAnnounce", turnAnnounce.writeToJson());
+    incrementTurn();
+  }
+
+  void incrementTurn() {
+    print(currentTurnIndex);
+    if (currentTurnIndex >= roleList.player.length - 1) {
+      currentTurnIndex = 0;
+    } else {
+      ++currentTurnIndex;
+    }
   }
 }

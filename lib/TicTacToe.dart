@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:minigames/proto/tictactoe.pbenum.dart';
 import 'package:provider/provider.dart';
 import 'package:minigames/main.dart';
 import 'package:minigames/proto/cell.pb.dart';
@@ -54,10 +55,48 @@ class CellWidget extends StatelessWidget {
           print("I am ${cell.x} ${cell.y}");
           //Provider.of<GameState>(context).setCellColor(cell.x, cell.y, Cell_Color.blue);
           //Provider.of<GameState>(context).setToRedO(cell.x, cell.y);
-          Provider.of<GameState>(context).setToRandomSymbol(cell.x, cell.y);
-        },
-        onLongPress: () {
-          Provider.of<GameState>(context).setToRandomColor(cell.x, cell.y);
+          if (Provider.of<GameState>(context).customer.myRole !=
+              Provider.of<GameState>(context).customer.whoseTurn) {
+            print(
+                "It's ${Provider.of<GameState>(context).customer.whoseTurn.fancyName}'s turn!");
+            Scaffold.of(context).showSnackBar(SnackBar(
+                content: Text(
+                    "It's ${Provider.of<GameState>(context).customer.whoseTurn.fancyName}'s turn!")));
+          } else if (cell.hasSymbol() && (cell.symbol != Cell_Symbol.blank)) {
+            print("already played!");
+            Scaffold.of(context)
+                .showSnackBar(SnackBar(content: Text("Cell already played")));
+            print(cell.symbol.name);
+          } else if (Provider.of<GameState>(context)
+              .customer
+              .myRole
+              .hasSymbol()) {
+            Cell_Color color;
+            switch (Provider.of<GameState>(context).customer.myRole.color) {
+              case PlayerWithRole_Color.black:
+                color = Cell_Color.black;
+                break;
+              case PlayerWithRole_Color.red:
+                color = Cell_Color.red;
+                break;
+              case PlayerWithRole_Color.blue:
+                color = Cell_Color.blue;
+                break;
+            }
+            Cell_Symbol symbol;
+            switch (Provider.of<GameState>(context).customer.myRole.symbol) {
+              case PlayerWithRole_Symbol.circle:
+                symbol = Cell_Symbol.circle;
+                break;
+              case PlayerWithRole_Symbol.cross:
+                symbol = Cell_Symbol.cross;
+                break;
+            }
+            Provider.of<GameState>(context)
+                .setCell(cell.x, cell.y, color, symbol);
+          } else {
+            print("no assigned");
+          }
         },
         child: SizedBox(
             height: 80,
