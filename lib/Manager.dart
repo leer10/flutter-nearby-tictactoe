@@ -149,9 +149,9 @@ Cell_Symbol checkForWin(List<List<Cell>> authortativeTicTacToeBoard) {
   //check the harder direction
   for (var i = 0; i < 3; i++) {
     List<Cell> crossAxis = [
-      authortativeTicTacToeBoard[i][0],
-      authortativeTicTacToeBoard[i][1],
-      authortativeTicTacToeBoard[i][2]
+      authortativeTicTacToeBoard[0][i],
+      authortativeTicTacToeBoard[1][i],
+      authortativeTicTacToeBoard[2][i]
     ];
     switch (threeCellCheck(crossAxis)) {
       case Cell_Symbol.blank:
