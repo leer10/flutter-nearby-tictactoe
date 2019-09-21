@@ -149,3 +149,27 @@ class _TicTacToeBoardState extends State<TicTacToeBoard> {
     );
   }
 }
+
+List<List<Cell>> genTicTacToeData() {
+  print("Gen called");
+  List<List<Cell>> genList = List<List<Cell>>.generate(
+      3,
+      (i) => List<Cell>.generate(3, (j) {
+            Cell aCell = Cell();
+            aCell.symbol = Cell_Symbol.blank;
+            return aCell;
+          })); // u/kevmoo
+  for (var i = 0; i < genList[0].length; i++) {
+    genList[0][i].y = i;
+    genList[0][i].x = 0;
+  }
+  for (var i = 0; i < genList[1].length; i++) {
+    genList[1][i].y = i;
+    genList[1][i].x = 1;
+  }
+  for (var i = 0; i < genList[2].length; i++) {
+    genList[2][i].y = i;
+    genList[2][i].x = 2;
+  }
+  return genList;
+}

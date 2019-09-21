@@ -24,7 +24,12 @@ class GameScreen extends StatelessWidget {
           children: <Widget>[
             Text("You are a ${myRole.symbol.name} with ${myRole.color.name}",
                 style: TextStyle(fontSize: 18)),
-            if (Provider.of<GameState>(context).customer.myRole ==
+            if (Provider.of<GameState>(context).customer.winner != null)
+              Text(
+                "${Provider.of<GameState>(context).customer.winner.fancyName} won!",
+                style: TextStyle(fontSize: 24),
+              )
+            else if (Provider.of<GameState>(context).customer.myRole ==
                 Provider.of<GameState>(context).customer.whoseTurn)
               Text(
                 "It is your turn!",

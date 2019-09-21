@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:minigames/TicTacToe.dart';
 import 'package:provider/provider.dart';
 import 'package:pub_sub/pub_sub.dart';
 import 'package:pub_sub/json_rpc_2.dart';
@@ -200,28 +201,11 @@ class GameState with ChangeNotifier {
 
   // Tic Tac Toe
   bool isBoardInitalized = false;
-  List<List<Cell>> _ticTacToeData;
+  List<List<Cell>> _ticTacToeData = [];
   void initalizeticTacToeBoard() {
+    print("initalize called");
     if (!isBoardInitalized) {
-      _ticTacToeData = List<List<Cell>>.generate(
-          3,
-          (i) => List<Cell>.generate(3, (j) {
-                Cell aCell = Cell();
-                aCell.symbol = Cell_Symbol.blank;
-                return aCell;
-              })); // u/kevmoo
-      for (var i = 0; i < _ticTacToeData[0].length; i++) {
-        _ticTacToeData[0][i].y = i;
-        _ticTacToeData[0][i].x = 0;
-      }
-      for (var i = 0; i < _ticTacToeData[1].length; i++) {
-        _ticTacToeData[1][i].y = i;
-        _ticTacToeData[1][i].x = 1;
-      }
-      for (var i = 0; i < _ticTacToeData[2].length; i++) {
-        _ticTacToeData[2][i].y = i;
-        _ticTacToeData[2][i].x = 2;
-      }
+      _ticTacToeData = genTicTacToeData();
       /*_ticTacToeData[0][0].color = Cell_Color.blue;
   _ticTacToeData[0][0].symbol = Cell_Symbol.cross;
   _ticTacToeData[2][0].color = Cell_Color.red;

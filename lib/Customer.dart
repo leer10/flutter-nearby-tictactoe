@@ -14,6 +14,7 @@ class Customer {
   PlayerWithRole myRole;
   PlayerWithRole noBody = PlayerWithRole();
   PlayerWithRole whoseTurn;
+  PlayerWithRole winner;
   Customer(this.client, void notifyListeners()) {
     noBody.fancyName = "Nobody"; // Set current turn to nobody
     noBody.uuid = "nobody";
@@ -47,6 +48,21 @@ class Customer {
         SerializablePlayer newPlayer = SerializablePlayer.fromJson(msg);
         playersBox.add(newPlayer.writeToBuffer());
         print("Player ${newPlayer.fancyName} added");
+      });
+    });
+
+    var announceWinCatch = client.subscribe("announceWin");
+    announceWinCatch.then((sub) {
+      print("customer: listening to win announcements");
+      sub.listen((msg) {
+        TurnAnnounce turnAnnounce = TurnAnnounce.fromJson(msg);
+        if (!turnAnnounce.isAck) {
+          RoleList roleList = RoleList.fromBuffer(clientBox.get("roleList"));
+          winner = roleList.player
+              .firstWhere((player) => player.uuid == turnAnnounce.uuid);
+          print("customer: caught a winner for ${winner.fancyName}");
+          notifyListeners();
+        }
       });
     });
 
