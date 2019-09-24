@@ -127,3 +127,10 @@ class _MessageFormState extends State<MessageForm> {
     );
   }
 }
+
+class ExampleWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}

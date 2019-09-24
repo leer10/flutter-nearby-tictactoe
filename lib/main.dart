@@ -100,6 +100,7 @@ class GameState with ChangeNotifier {
   // For client
   bool isClientInitalized = false;
   JsonRpc2Client client;
+  Navigator navigator;
 
   // For Multiplayer logic self-hosted (currently Nearby only) (the "server" in client-server)
   bool isManagerInitalized = false;
@@ -178,7 +179,7 @@ class GameState with ChangeNotifier {
     if (type == SerializablePlayer_ConnectionType.Nearby) {
       serializableSelf.nearbyID = id;
     }
-    customer = Customer(client, notifyListeners);
+    customer = Customer(client, notifyListeners, reset);
     customer.announceSelf(serializableSelf);
   }
 
@@ -201,6 +202,7 @@ class GameState with ChangeNotifier {
 
   // Tic Tac Toe
   bool isBoardInitalized = false;
+  bool isListenerEnabled = false;
   List<List<Cell>> _ticTacToeData = [];
   void initalizeticTacToeBoard() {
     print("initalize called");
@@ -212,18 +214,25 @@ class GameState with ChangeNotifier {
   _ticTacToeData[2][0].symbol = Cell_Symbol.circle;
   _ticTacToeData[1][1].symbol = Cell_Symbol.blank;
   */
-      var ticTacToeEventCatch = client.subscribe("ticTacToeEvent");
-      ticTacToeEventCatch.then((sub) {
-        print("listening to ticTacToe events");
-        sub.listen((msg) {
-          Cell newpiece = Cell.fromJson(msg);
-          _ticTacToeData[newpiece.x][newpiece.y] = newpiece;
-          notifyListeners();
+      if (!isListenerEnabled) {
+        var ticTacToeEventCatch = client.subscribe("ticTacToeEvent");
+        ticTacToeEventCatch.then((sub) {
+          print("listening to ticTacToe events");
+          sub.listen((msg) {
+            Cell newpiece = Cell.fromJson(msg);
+            _ticTacToeData[newpiece.x][newpiece.y] = newpiece;
+            notifyListeners();
+          });
         });
-      });
-
+        isListenerEnabled = true;
+      }
       isBoardInitalized = true;
     }
+  }
+
+  void reset() {
+    isBoardInitalized = false;
+    initalizeticTacToeBoard();
   }
 
   List<List<Cell>> get ticTacToeData => _ticTacToeData;

@@ -15,7 +15,7 @@ class Customer {
   PlayerWithRole noBody = PlayerWithRole();
   PlayerWithRole whoseTurn;
   PlayerWithRole winner;
-  Customer(this.client, void notifyListeners()) {
+  Customer(this.client, void notifyListeners(), void reset()) {
     noBody.fancyName = "Nobody"; // Set current turn to nobody
     noBody.uuid = "nobody";
     whoseTurn = noBody;
@@ -85,6 +85,19 @@ class Customer {
             client.publish("turnAnnounce", turnAnnounceACK.writeToJson());
           }*/
         }
+      });
+    });
+
+    var resetCatch = client.subscribe("reset");
+    resetCatch.then((sub) {
+      print("customer: listening to reset");
+      sub.listen((msg) {
+        reset();
+        winner = null;
+        myRole = null;
+        whoseTurn = null;
+        playersBox.clear();
+        clientBox.delete("roleList");
       });
     });
   }

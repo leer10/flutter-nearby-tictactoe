@@ -17,7 +17,6 @@ class Manager {
   List<List<Cell>> authortativeTicTacToeBoard = [];
 
   Manager(this.client) {
-    authortativeTicTacToeBoard = genTicTacToeData();
     var announceSelfCatch = client.subscribe("announceSelf");
     announceSelfCatch.then((sub) {
       print("manager: listening to self announcements");
@@ -77,37 +76,52 @@ class Manager {
       });
     });
 
+    var resetCatch = client.subscribe("reset");
+    resetCatch.then((sub) {
+      print("manager: listening to win");
+      sub.listen((msg) {
+        startGame();
+      });
+    });
+
     var startGameCatch = client.subscribe("startGame");
     startGameCatch.then((sub) {
       sub.listen((msg) {
-        print("manager: starting game");
-        List<PlayerWithRole_Color> colorList =
-            List.from(PlayerWithRole_Color.values);
-        List<PlayerWithRole_Symbol> symbolList =
-            List.from(PlayerWithRole_Symbol.values);
-        colorList.shuffle();
-        symbolList.shuffle();
-        List<SerializablePlayer> listofPlayers = playersBox
-            .toMap()
-            .cast<String, Uint8List>()
-            .values
-            .map((f) => SerializablePlayer.fromBuffer(f))
-            .where((player) => player.intentPlay == true)
-            .toList();
-        listofPlayers.shuffle();
-        for (SerializablePlayer player in listofPlayers.take(2)) {
-          PlayerWithRole aPlayer1 = PlayerWithRole();
-          aPlayer1.uuid = player.id;
-          aPlayer1.fancyName = player.fancyName;
-          aPlayer1.symbol = symbolList.removeLast();
-          aPlayer1.color = colorList.removeLast();
-          roleList.player.add(aPlayer1);
-        }
-        gameBox.put("rolesList", roleList.writeToBuffer());
-        client.publish("roleListAnnounce", roleList.writeToJson());
-        nextTurn();
+        startGame();
       });
     });
+  }
+
+  void startGame() {
+    print("manager: starting game");
+    currentTurnIndex = 0;
+    authortativeTicTacToeBoard = genTicTacToeData();
+    roleList?.clear();
+    List<PlayerWithRole_Color> colorList =
+        List.from(PlayerWithRole_Color.values);
+    List<PlayerWithRole_Symbol> symbolList =
+        List.from(PlayerWithRole_Symbol.values);
+    colorList.shuffle();
+    symbolList.shuffle();
+    List<SerializablePlayer> listofPlayers = playersBox
+        .toMap()
+        .cast<String, Uint8List>()
+        .values
+        .map((f) => SerializablePlayer.fromBuffer(f))
+        .where((player) => player.intentPlay == true)
+        .toList();
+    listofPlayers.shuffle();
+    for (SerializablePlayer player in listofPlayers.take(2)) {
+      PlayerWithRole aPlayer1 = PlayerWithRole();
+      aPlayer1.uuid = player.id;
+      aPlayer1.fancyName = player.fancyName;
+      aPlayer1.symbol = symbolList.removeLast();
+      aPlayer1.color = colorList.removeLast();
+      roleList.player.add(aPlayer1);
+    }
+    gameBox.put("rolesList", roleList.writeToBuffer());
+    client.publish("roleListAnnounce", roleList.writeToJson());
+    nextTurn();
   }
 
   void nextTurn() {
@@ -116,6 +130,11 @@ class Manager {
     turnAnnounce.uuid = roleList.player[currentTurnIndex].uuid;
     client.publish("turnAnnounce", turnAnnounce.writeToJson());
     incrementTurn();
+  }
+
+  void announceReset() {
+    client.publish("reset", "");
+    startGame();
   }
 
   void incrementTurn() {
@@ -214,6 +233,7 @@ Cell_Symbol checkForWin(List<List<Cell>> authortativeTicTacToeBoard) {
 }
 
 Cell_Symbol threeCellCheck(List<Cell> threeCells) {
+  assert(threeCells.length == 3);
   if (threeCells.every((cell) => cell.symbol == Cell_Symbol.circle)) {
     return Cell_Symbol.circle;
   } else if (threeCells.every((cell) => cell.symbol == Cell_Symbol.cross)) {
