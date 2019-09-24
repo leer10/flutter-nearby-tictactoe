@@ -30,6 +30,14 @@ import 'package:minigames/screens/JoinScreen.dart';
 import 'package:minigames/screens/LobbyScreen.dart';
 import 'package:minigames/screens/GameScreen.dart';
 
+/*
+TODO: Resolve 'Close instances of 'dart.core.sink'
+TODO: Make devices detect lost connection, make more robust somehow
+TODO: Devices will allow cell interaction when in unsure state... maybe should have locking?
+TODO: fix unholy mess that is using Hive to pass around state
+
+*/
+
 void main() => runApp(
     ChangeNotifierProvider(builder: (context) => GameState(), child: MyApp()));
 
